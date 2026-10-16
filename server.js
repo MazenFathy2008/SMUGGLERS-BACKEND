@@ -4,6 +4,7 @@ import dns from "node:dns";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/database.js";
+import errorsMiddleware from "./middleware/error.middleware.js";
 dns.setServers(["8.8.8.8"]);
 const app = express();
 app.use(
@@ -14,6 +15,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use(errorsMiddleware);
 const startServer = async () => {
   try {
     await connectDB();
