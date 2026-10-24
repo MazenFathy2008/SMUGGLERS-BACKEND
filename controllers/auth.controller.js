@@ -10,6 +10,8 @@ const cookieOptions = {
   sameSite: isProduction ? "none" : "lax",
   maxAge: 15 * 24 * 60 * 60 * 1000,
 };
+
+/// SING UP///
 const signUp = async (req, res, next) => {
   try {
     const { data } = req.body;
@@ -27,12 +29,54 @@ const signUp = async (req, res, next) => {
     );
     res.cookie("token", token, cookieOptions);
     res.status(201).json({
-      message: "User created successfully",
-      user: user,
+      success: true,
+      user: {
+        ...user.toObject(),
+        password: null,
+      },
     });
   } catch (error) {
     next(error);
   }
 };
+////////////////////////////
 
-export { signUp };
+/// SIGN IN ///
+const signIn = async (req, res, next) => {
+  const { data } = req.body;
+  const { email, password } = data;
+  const user = await Users.findOne({ email });
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      error: "INVALID_CREDENTIALS",
+    });
+  }
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) {
+    return res.status(401).json({
+      success: false,
+      error: "INVALID_CREDENTIALS",
+    });
+  }
+  const token = jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+    },
+    JWT_SECRET,
+    {
+      expiresIn: JWT_EXPIRES_IN,
+    },
+  );
+  res.cookie("token", token, cookieOptions);
+  res.status(200).json({
+    success: true,
+    user: {
+      ...user.toObject(),
+      password: null,
+    },
+  });
+};
+///////////////
+export { signUp, signIn };
