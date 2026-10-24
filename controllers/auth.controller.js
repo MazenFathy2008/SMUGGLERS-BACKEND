@@ -79,4 +79,22 @@ const signIn = async (req, res, next) => {
   });
 };
 ///////////////
-export { signUp, signIn };
+
+/// Log out ///
+const signOut = async (req, res, next) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export { signUp, signIn,signOut };
