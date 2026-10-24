@@ -80,7 +80,7 @@ const signIn = async (req, res, next) => {
 };
 ///////////////
 
-/// Log out ///
+/// Sign out ///
 const signOut = async (req, res, next) => {
   try {
     res.clearCookie("token", {
@@ -97,4 +97,35 @@ const signOut = async (req, res, next) => {
     next(error);
   }
 };
-export { signUp, signIn,signOut };
+///////////
+
+/// authMe ///
+const authMe = async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: "UNAUTHORIZED",
+      });
+    }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await Users.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "DATA_NOT_FOUND",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log(error)
+    next(error);
+  }
+};
+//////////////
+
+export { signUp, signIn, signOut,authMe };
