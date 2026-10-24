@@ -1,7 +1,14 @@
+import Orders from "../../model/orders.model";
 const lobby = new Set();
 
-export const joinLobby = (socket) => {
+export const joinLobby = async (socket) => {
   lobby.add(socket);
+  const orders = Orders.find({ status: "open" });
+  const message = {
+    type: "show-lobby",
+    payLoad: orders,
+  };
+  socket.send(message);
 };
 
 export const leaveLobby = (socket) => {
