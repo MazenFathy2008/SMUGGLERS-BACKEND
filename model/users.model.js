@@ -4,7 +4,7 @@ const UserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required:   true, 
+      required: true,
       trim: true,
       minlength: 2,
       maxlength: 50,
@@ -34,7 +34,10 @@ const UserSchema = new mongoose.Schema(
       minlength: 8,
       maxlength: 128,
     },
-
+    roomNumber: {
+      type: Number,
+      required: true,
+    },
     role: {
       type: String,
       enum: ["member", "admin"],
