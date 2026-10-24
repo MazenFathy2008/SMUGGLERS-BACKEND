@@ -10,7 +10,11 @@ const UserSchema = new mongoose.Schema(
       maxlength: 50,
       match: /^[a-zA-Z\s'-]+$/,
     },
-
+    orders: [
+      {
+        type: String,
+      },
+    ],
     email: {
       type: String,
       required: true,
