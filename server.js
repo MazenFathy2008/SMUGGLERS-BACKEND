@@ -10,7 +10,7 @@ import authRouter from "./router/auth.route.js";
 import { setUpsocket } from "./socket/socket.js";
 dns.setServers(["8.8.8.8"]);
 const app = express();
-const server = createServer(app)
+const server = createServer(app);
 app.use(
   cors({
     origin: FRONTEND_URL,
@@ -21,13 +21,13 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", authRouter);
 app.use(errorsMiddleware);
-setUpsocket(server)
+export const io = setUpsocket(server);
+
 const startServer = async () => {
   try {
     await connectDB();
     server.listen(PORT, () => {
       console.log(`http://localhost:${PORT}`);
-      console.log(`WebSocket server ready on port ${PORT}`);
     });
   } catch (err) {
     console.log(`database connection error: ${err.message}`);

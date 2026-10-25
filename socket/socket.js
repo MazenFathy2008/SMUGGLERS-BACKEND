@@ -1,18 +1,23 @@
 import { Server } from "socket.io";
 import { FRONTEND_URL } from "../config/env.js";
-let io;
+import verifyToken from "./verifiytoke.js";
+
 export const setUpsocket = (server) => {
-  io = new Server(server, {
+  const io = new Server(server, {
     cors: {
       origin: FRONTEND_URL,
       credentials: true,
     },
   });
+  io.use(verifyToken);
   io.on("connection", (socket) => {
-    console.log("User connected: ", socket.id);
+    if (socket.data.user) {
+      socket.join("lobby");
+      console.log(`Socket ${socket.id} joined the lobby`);
+    }
     socket.on("disconnect", () => {
       console.log("disconnected");
     });
   });
+  return io;
 };
-export default io;
