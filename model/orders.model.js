@@ -27,6 +27,10 @@ const OrdersSchema = new Schema({
       required: true,
       trim: true,
     },
+    roomNumber: {
+      type: Number,
+      required: true,
+    },
     phone: {
       type: String,
       required: true,

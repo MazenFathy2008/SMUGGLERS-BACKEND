@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { FRONTEND_URL } from "../config/env.js";
 import verifyToken from "./verifiytoke.js";
 import sendOrders from "./messages/sendOrders.js";
+import collectOrder from "./events/collectOrder.js";
 
 export const setUpsocket = (server) => {
   const io = new Server(server, {
@@ -12,11 +13,14 @@ export const setUpsocket = (server) => {
   });
   io.use(verifyToken);
   io.on("connection", async (socket) => {
-    if (socket.data.user) {
-      socket.join("lobby");
-      await sendOrders(socket);
-      console.log(`Socket ${socket.id} joined the lobby`);
-    }
+    socket.join("lobby");
+    await sendOrders(socket);
+    console.log(`Socket ${socket.id} joined the lobby`);
+    
+// events section (عشان اعرف اشوف في اللعبكة بنت ال##ره ده)
+    socket.on("collectOrder", async (data) => {
+      await collectOrder(socket, data);
+    });
     socket.on("disconnect", () => {
       console.log("disconnected");
     });
