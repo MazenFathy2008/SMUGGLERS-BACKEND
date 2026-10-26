@@ -17,7 +17,7 @@ const OrdersSchema = new Schema({
   },
 
   collector: {
-    user: {
+    id: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -40,7 +40,7 @@ const OrdersSchema = new Schema({
 
   participants: [
     {
-      user: {
+      id: {
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
@@ -103,7 +103,7 @@ const OrdersSchema = new Schema({
 
   status: {
     type: String,
-    enum: ["open", "closed", "submitted", "completed", "cancelled"],
+    enum: ["open", "closed", "completed", "cancelled"],
     default: "open",
   },
 
