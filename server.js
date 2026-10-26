@@ -7,10 +7,13 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/database.js";
 import errorsMiddleware from "./middleware/error.middleware.js";
 import authRouter from "./router/auth.route.js";
+import orderRouter from "./router/order.routers.js";
 import { setUpsocket } from "./socket/socket.js";
+
 dns.setServers(["8.8.8.8"]);
 const app = express();
 const server = createServer(app);
+
 app.use(
   cors({
     origin: FRONTEND_URL,
@@ -19,8 +22,12 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+
 app.use("/auth", authRouter);
+app.use("/orders", orderRouter);
+
 app.use(errorsMiddleware);
+
 export const io = setUpsocket(server);
 
 const startServer = async () => {

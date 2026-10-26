@@ -9,11 +9,11 @@
     "cookie": "^2.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
-    "dotenv": "^18.0.8",
+    "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.7.0",
-    "mongoose": "^9.11.2",
+    "mongoose": "^9.11.4",
     "socket.io": "^4.8.4",
     "ws": "^8.22.0"
   },
