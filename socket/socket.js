@@ -4,6 +4,7 @@ import verifyToken from "./verifiytoke.js";
 import sendOrders from "./messages/sendOrders.js";
 import collectOrder from "./events/collectOrder.js";
 import closeOrder from "./events/closeOrder.js";
+import cancelOrder from "./events/cancelORder.js";
 export const setUpsocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -24,6 +25,11 @@ export const setUpsocket = (server) => {
     socket.on("closeOrder", async (data) => {
       await closeOrder(socket, data);
     });
+
+    socket.on("cancelOrder", async (data) => {
+      await cancelOrder(socket, data);
+    });
+
     socket.on("disconnect", () => {
       console.log("disconnected");
     });

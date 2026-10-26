@@ -11,7 +11,10 @@ export default async function closeOrder(socket, data) {
       });
       return;
     }
-    if (user.role != "admin" || user._id != order.collector.id.toString()) {
+    if (
+      user.role != "admin" ||
+      user._id.toString() !== order.collector.id.toString()
+    ) {
       socket.emit("socketError", {
         message: "Only  this order collector will be able to access it",
       });
