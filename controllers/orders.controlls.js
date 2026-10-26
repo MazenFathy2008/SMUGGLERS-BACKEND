@@ -1,5 +1,8 @@
 import Orders from "../model/orders.model.js";
-import { io } from "../server.js";
+import { getIO } from "../socket/socket.js";
+
+// Helper to get socket.io instance
+const getSocketIO = (req) => req?.app?.get("io") || getIO();
 
 // 1. إرسال أوردر للراجل الأساسي (الانضمام للأوردر المجمع)
 export const joinGroupOrder = async (req, res, next) => {
@@ -38,7 +41,8 @@ export const joinGroupOrder = async (req, res, next) => {
     if (alreadyJoined) {
       return res.status(400).json({
         success: false,
-        message: "لقد أرسلت طلبك بالفعل في هذا الأوردر، يمكنك تعديله بدلاً من إرسال طلب جديد",
+        message:
+          "لقد أرسلت طلبك بالفعل في هذا الأوردر، يمكنك تعديله بدلاً من إرسال طلب جديد",
       });
     }
 
@@ -52,10 +56,50 @@ export const joinGroupOrder = async (req, res, next) => {
     };
 
     order.participants.push(participantData);
+
+    // التحقق من سياسات الإغلاق التلقائي
+    if (
+      order.settings?.closingPolicy === "delivery_target" &&
+      order.settings?.targetDeliveryAmount
+    ) {
+      const totalDeliveryFee = order.participants.reduce(
+        (sum, p) => sum + (p.deliveryFee || 0),
+        0
+      );
+      if (totalDeliveryFee >= order.settings.targetDeliveryAmount) {
+        order.status = "closed";
+      }
+    } else if (
+      order.settings?.closingPolicy === "deadline" &&
+      order.settings?.deadline
+    ) {
+      if (new Date() >= new Date(order.settings.deadline)) {
+        order.status = "closed";
+      }
+    }
+
     await order.save();
 
-    // إشعار لايف للراجل الأساسي عبر Socket.io
-    io.emit("orderUpdated", order);
+    // إشعار لايف عبر Socket.io
+    const io = getSocketIO(req);
+    if (io) {
+      io.to(order._id.toString()).emit("orderUpdated", order);
+      io.to(order._id.toString()).emit("participantJoined", {
+        orderId: order._id,
+        participant: participantData,
+      });
+      io.emit("orderUpdated", order);
+
+      if (order.status === "closed") {
+        io.to(order._id.toString()).emit("orderStatusUpdated", {
+          orderId: order._id,
+          status: "closed",
+          order,
+        });
+        io.to("lobby").emit("orderClosed", { orderId: order._id });
+        io.to("lobby").emit("activeOrderRemoved", { orderId: order._id });
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -109,10 +153,42 @@ export const updateMyOrder = async (req, res, next) => {
       participant.deliveryFee = deliveryFee;
     }
 
+    // التحقق من سياسات الإغلاق التلقائي
+    if (
+      order.settings?.closingPolicy === "delivery_target" &&
+      order.settings?.targetDeliveryAmount
+    ) {
+      const totalDeliveryFee = order.participants.reduce(
+        (sum, p) => sum + (p.deliveryFee || 0),
+        0
+      );
+      if (totalDeliveryFee >= order.settings.targetDeliveryAmount) {
+        order.status = "closed";
+      }
+    }
+
     await order.save();
 
-    // تحديث لايف للراجل الأساسي
-    io.emit("orderUpdated", order);
+    // تحديث لايف عبر Socket.io
+    const io = getSocketIO(req);
+    if (io) {
+      io.to(order._id.toString()).emit("orderUpdated", order);
+      io.to(order._id.toString()).emit("participantUpdated", {
+        orderId: order._id,
+        participant,
+      });
+      io.emit("orderUpdated", order);
+
+      if (order.status === "closed") {
+        io.to(order._id.toString()).emit("orderStatusUpdated", {
+          orderId: order._id,
+          status: "closed",
+          order,
+        });
+        io.to("lobby").emit("orderClosed", { orderId: order._id });
+        io.to("lobby").emit("activeOrderRemoved", { orderId: order._id });
+      }
+    }
 
     res.status(200).json({
       success: true,
@@ -163,7 +239,15 @@ export const cancelMyOrder = async (req, res, next) => {
     await order.save();
 
     // إشعار الراجل الأساسي بأن المشترك ألغى أوردره
-    io.emit("orderUpdated", order);
+    const io = getSocketIO(req);
+    if (io) {
+      io.to(order._id.toString()).emit("orderUpdated", order);
+      io.to(order._id.toString()).emit("participantLeft", {
+        orderId: order._id,
+        userId: req.user._id,
+      });
+      io.emit("orderUpdated", order);
+    }
 
     res.status(200).json({
       success: true,
@@ -179,7 +263,10 @@ export const cancelMyOrder = async (req, res, next) => {
 export const getMyOrders = async (req, res, next) => {
   try {
     const orders = await Orders.find({
-      "participants.user": req.user._id,
+      $or: [
+        { "participants.user": req.user._id },
+        { "collector.user": req.user._id },
+      ],
     }).sort({ createdAt: -1 });
 
     res.status(200).json({
