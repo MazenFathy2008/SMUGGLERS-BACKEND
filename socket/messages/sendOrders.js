@@ -1,10 +1,5 @@
 import Orders from "../../model/orders.model.js";
-<<<<<<< HEAD
-const sendOrders = async (socket) => {
-=======
-
 const sendOrders = async (socket, callback) => {
->>>>>>> e44ad47d139873becf12483eb481f9fa929a9862
   try {
     const activeOrders = await Orders.find({
       status: "open",

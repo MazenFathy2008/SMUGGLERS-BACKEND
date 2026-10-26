@@ -1,10 +1,7 @@
 import jwt from "jsonwebtoken";
 import * as cookie from "cookie";
 import { JWT_SECRET } from "../config/env.js";
-import Users from "../model/users.model.js";
-<<<<<<< HEAD
-=======
-
+import Users from "../model/users.model.js";  
 const parseCookieHeader = (header = "") => {
   if (!header) return {};
   if (typeof cookie.parseCookie === "function") {
@@ -15,8 +12,6 @@ const parseCookieHeader = (header = "") => {
   }
   return {};
 };
-
->>>>>>> e44ad47d139873becf12483eb481f9fa929a9862
 const verifyToken = async (socket, next) => {
   try {
     const cookies = parseCookieHeader(socket.handshake.headers.cookie || "");

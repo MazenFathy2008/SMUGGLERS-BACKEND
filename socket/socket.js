@@ -4,7 +4,6 @@ import verifyToken from "./verifiytoke.js";
 import sendOrders from "./messages/sendOrders.js";
 import collectOrder from "./events/collector/collectOrder.js";
 import closeOrder from "./events/collector/closeOrder.js";
-import cancelOrder from "./events/collector/cancelOrder.js";
 import joinOrder from "./events/joinOrder.js";
 import updateOrder from "./events/updateOrder.js";
 import cancelOrder from "./events/collector/cancelOrder.js";
