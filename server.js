@@ -23,12 +23,13 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+export const io = setUpsocket(server);
+app.set("io", io);
+
 app.use("/auth", authRouter);
 app.use("/orders", orderRouter);
 
 app.use(errorsMiddleware);
-
-export const io = setUpsocket(server);
 
 const startServer = async () => {
   try {
