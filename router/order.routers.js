@@ -1,31 +1,17 @@
-import express from "express";
-import { protect } from "../middleware/auth.middleware.js";
-import {
-  joinGroupOrder,
-  updateMyOrder,
-  cancelMyOrder,
+const express = require('express');
+const router = express.Router();
+const {
+  createOrder,
+  updateOrder,
+  cancelOrder,
   getMyOrders,
-  getOrderById,
-} from "../controllers/orders.controlls.js";
+} = require('../controllers/orderController');
+const { protect } = require('../middleware/auth');
 
-const orderRouter = express.Router();
+// كل المسارات محمية بـ protect عشان نعرف مين اليوزر اللي باعت الطلب
+router.post('/', protect, createOrder);           // إنشاء أوردر: POST /api/orders
+router.get('/my-orders', protect, getMyOrders);   // عرض أوردراتي: GET /api/orders/my-orders
+router.put('/:id', protect, updateOrder);         // تعديل أوردر: PUT /api/orders/:id
+router.delete('/:id', protect, cancelOrder);      // إلغاء أوردر: DELETE /api/orders/:id
 
-// جميع مسارات الأوردرات تتطلب تسجيل الدخول
-orderRouter.use(protect);
-
-// عرض كل الأوردرات التي شارك فيها المستخدم
-orderRouter.get("/my-orders", getMyOrders);
-
-// جلب تفاصيل أوردر معين
-orderRouter.get("/:orderId", getOrderById);
-
-// إرسال أوردر للراجل الأساسي (الانضمام لأوردر مجمع برقم الـ ID)
-orderRouter.post("/:orderId/join", joinGroupOrder);
-
-// تعديل أوردر المشترك
-orderRouter.put("/:orderId/my-order", updateMyOrder);
-
-// إلغاء أوردر المشترك نهائياً وخروجه من الأوردر المجمع
-orderRouter.delete("/:orderId/my-order", cancelMyOrder);
-
-export default orderRouter;
+module.exports = router;
