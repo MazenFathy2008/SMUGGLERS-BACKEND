@@ -1,4 +1,4 @@
-import Orders from "../../model/orders.model";
+import Orders from "../../model/orders.model.js";
 const sendOrders = async (socket) => {
   try {
     const activeOrders = await Orders.find({

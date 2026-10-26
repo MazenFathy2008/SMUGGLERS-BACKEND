@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import cookie from "cookie";
-import { JWT_SECRET } from "../config/env";
-import Users from "../model/users.model";
+import * as cookie from "cookie";
+import { JWT_SECRET } from "../config/env.js";
+import Users from "../model/users.model.js";
 const verifyToken = async (socket, next) => {
   try {
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");

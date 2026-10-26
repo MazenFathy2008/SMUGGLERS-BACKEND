@@ -1,4 +1,4 @@
-import Orders from "../../model/orders.model";
+import Orders from "../../model/orders.model.js";
 
 export default async function collectOrder(socket, data) {
   try {

@@ -1,5 +1,5 @@
-import Orders from "../../model/orders.model";
-import { io } from "../server.js";
+import Orders from "../../model/orders.model.js";
+import { io } from "../../server.js";
 export default async function cancelOrder(socket, data) {
   try {
     const user = socket.data.user;

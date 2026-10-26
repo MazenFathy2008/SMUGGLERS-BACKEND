@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/database.js";
 import errorsMiddleware from "./middleware/error.middleware.js";
 import authRouter from "./router/auth.route.js";
-import orderRouter from "./router/order.routers.js";
+// import orderRouter from "./router/order.routers.js";
 import { setUpsocket } from "./socket/socket.js";
 
 dns.setServers(["8.8.8.8"]);
@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
-app.use("/orders", orderRouter);
+// app.use("/orders", orderRouter);
 
 app.use(errorsMiddleware);
 
