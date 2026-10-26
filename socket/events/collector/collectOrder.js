@@ -1,21 +1,4 @@
-import Orders from "../../model/orders.model.js";
-<<<<<<< HEAD
-=======
-
-export default async function collectOrder(io, socket, data, callback) {
-  let serverIo = io;
-  let clientSocket = socket;
-  let payload = data;
-  let cb = callback;
-
-  if (typeof io?.emit !== "function" && typeof socket?.emit === "function") {
-    clientSocket = io;
-    payload = socket;
-    serverIo = data;
-    cb = callback;
-  }
->>>>>>> e44ad47d139873becf12483eb481f9fa929a9862
-
+import Orders from "../../../model/orders.model.js";
   try {
     const user = clientSocket.data?.user;
     if (!user) {
@@ -82,4 +65,3 @@ export default async function collectOrder(io, socket, data, callback) {
     clientSocket.emit("socketError", res);
     if (typeof cb === "function") cb(res);
   }
-}
