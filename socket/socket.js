@@ -29,9 +29,7 @@ export const setUpsocket = (server) => {
 
   io.on("connection", async (socket) => {
     socket.join("lobby");
-    await sendOrders(socket);
     console.log(`Socket ${socket.id} joined the lobby`);
-
     // events section (عشان اعرف اشوف في اللعبكة بنت ال##ره ده)
     socket.on("collectOrder", async (data) => {
       await collectOrder(socket, data);
@@ -44,44 +42,44 @@ export const setUpsocket = (server) => {
       await cancelOrder(socket, data);
     });
 
+    // Refresh active orders in lobby
+    socket.on("getActiveOrders", async () => {
+      await sendOrders(socket);
+    });
+    
     socket.on("disconnect", () => {
       console.log("disconnected");
       console.log(
         `Socket ${socket.id} (${socket.data.user?.name || "User"}) joined the lobby`,
       );
-/////////////////////////////
-      socket.on("joinOrder", async (data, callback) => {
-        await joinOrder(io, socket, data, callback);
-      });
-      // Update Order
-      socket.on("updateMyOrder", async (data, callback) => {
-        await updateOrder(io, socket, data, callback);
-      });
-      // Cancel Order
-      socket.on("cancelMyOrder", async (data, callback) => {
-        await cancelOrder(io, socket, data, callback);
-      });
+    });
 
-      // --- Order Retrieval & Rooms ---
-      // Get single order details and join room
-      socket.on("getOrder", async (data, callback) => {
-        await getOrder(io, socket, data, callback);
-      });
-      // Get current user's participated / created orders
-      socket.on("getMyOrders", async (data, callback) => {
-        await getMyOrders(io, socket, data, callback);
-      });
+    /////////////////////////////
+    socket.on("joinOrder", async (data, callback) => {
+      await joinOrder(io, socket, data, callback);
+    });
+    // Update Order
+    socket.on("updateMyOrder", async (data, callback) => {
+      await updateOrder(io, socket, data, callback);
+    });
+    // Cancel Order
+    socket.on("cancelMyOrder", async (data, callback) => {
+      await cancelOrder(io, socket, data, callback);
+    });
 
-      // Refresh active orders in lobby
-      socket.on("getActiveOrders", async (data, callback) => {
-        const cb = typeof data === "function" ? data : callback;
-        await sendOrders(socket, cb);
-      });
+    // --- Order Retrieval & Rooms ---
+    // Get single order details and join room
+    socket.on("getOrder", async (data, callback) => {
+      await getOrder(io, socket, data, callback);
+    });
+    // Get current user's participated / created orders
+    socket.on("getMyOrders", async (data, callback) => {
+      await getMyOrders(io, socket, data, callback);
+    });
 
-      // Leave order room
-      socket.on("leaveOrder", async (data, callback) => {
-        await leaveOrder(io, socket, data, callback);
-      });
+    // Leave order room
+    socket.on("leaveOrder", async (data, callback) => {
+      await leaveOrder(io, socket, data, callback);
     });
     return io;
   });
