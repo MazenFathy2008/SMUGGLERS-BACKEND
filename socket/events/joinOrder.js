@@ -85,8 +85,29 @@ export default async function joinOrder(io, socket, data, callback) {
       return;
     }
 
+    if (
+      order.settings?.closingPolicy === "deadline" &&
+      order.settings.deadline &&
+      new Date() >= new Date(order.settings.deadline)
+    ) {
+      order.status = "closed";
+      await order.save();
+      const res = {
+        success: false,
+        message: "انتهى موعد استقبال الطلبات وتم إغلاق الأوردر",
+      };
+      clientSocket.emit("socketError", res);
+      if (typeof cb === "function") cb(res);
+      if (serverIo) {
+        serverIo.to("lobby").emit("activeOrderRemoved", {
+          orderId: order._id,
+        });
+      }
+      return;
+    }
+
     const alreadyJoined = order.participants.some(
-      (p) => p.user.toString() === user._id.toString()
+      (p) => p.id.toString() === user._id.toString()
     );
 
     if (alreadyJoined) {
@@ -101,7 +122,7 @@ export default async function joinOrder(io, socket, data, callback) {
     }
 
     const participantData = {
-      user: user._id,
+      id: user._id,
       name: user.name,
       phone: user.phone,
       items: items.map((it) => ({

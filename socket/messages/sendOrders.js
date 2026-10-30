@@ -9,9 +9,6 @@ const sendOrders = async (socket) => {
     socket.emit("socketError", {
       message: "Failed to load active orders",
     });
-    if (typeof callback === "function") {
-      callback({ success: false, message: "Failed to load active orders" });
-    }
   }
 };
 

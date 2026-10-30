@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema(
       trim: true,
       minlength: 2,
       maxlength: 50,
-      match: /^[a-zA-Z\s'-]+$/,
+      match: /^[\p{L}\s'-]+$/u,
     },
     orders: [
       {
@@ -46,6 +46,14 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: ["member", "admin"],
       default: "member",
+    },
+    passwordResetTokenHash: {
+      type: String,
+      select: false,
+    },
+    passwordResetExpiresAt: {
+      type: Date,
+      select: false,
     },
   },
   {

@@ -33,9 +33,22 @@ export const joinGroupOrder = async (req, res, next) => {
       });
     }
 
+    if (
+      order.settings?.closingPolicy === "deadline" &&
+      order.settings.deadline &&
+      new Date() >= new Date(order.settings.deadline)
+    ) {
+      order.status = "closed";
+      await order.save();
+      return res.status(400).json({
+        success: false,
+        message: "انتهى موعد استقبال الطلبات وتم إغلاق الأوردر",
+      });
+    }
+
     // التحقق هل المستخدم مشترك بالفعل مسبقاً
     const alreadyJoined = order.participants.some(
-      (p) => p.user.toString() === req.user._id.toString()
+      (p) => p.id.toString() === req.user._id.toString()
     );
 
     if (alreadyJoined) {
@@ -48,7 +61,7 @@ export const joinGroupOrder = async (req, res, next) => {
 
     // إضافة أوردر المشترك
     const participantData = {
-      user: req.user._id,
+      id: req.user._id,
       name: req.user.name,
       phone: req.user.phone,
       items,
@@ -135,7 +148,7 @@ export const updateMyOrder = async (req, res, next) => {
 
     // 2. البحث عن أوردر هذا المستخدم داخل المشتركين
     const participant = order.participants.find(
-      (p) => p.user.toString() === req.user._id.toString()
+      (p) => p.id.toString() === req.user._id.toString()
     );
 
     if (!participant) {
@@ -224,7 +237,7 @@ export const cancelMyOrder = async (req, res, next) => {
 
     // 2. التأكد إن المشترك موجود ومسحه
     const participantIndex = order.participants.findIndex(
-      (p) => p.user.toString() === req.user._id.toString()
+      (p) => p.id.toString() === req.user._id.toString()
     );
 
     if (participantIndex === -1) {
@@ -264,8 +277,8 @@ export const getMyOrders = async (req, res, next) => {
   try {
     const orders = await Orders.find({
       $or: [
-        { "participants.user": req.user._id },
-        { "collector.user": req.user._id },
+        { "participants.id": req.user._id },
+        { "collector.id": req.user._id },
       ],
     }).sort({ createdAt: -1 });
 
@@ -288,6 +301,21 @@ export const getOrderById = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: "الأوردر غير موجود",
+      });
+    }
+
+    const canViewOrder =
+      req.user.role === "admin" ||
+      order.collector.id.toString() === req.user._id.toString() ||
+      order.participants.some(
+        (participant) =>
+          participant.id.toString() === req.user._id.toString(),
+      );
+
+    if (!canViewOrder) {
+      return res.status(403).json({
+        success: false,
+        message: "غير مصرح لك بعرض تفاصيل هذا الأوردر",
       });
     }
 

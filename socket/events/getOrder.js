@@ -45,6 +45,23 @@ export default async function getOrder(io, socket, data, callback) {
       return;
     }
 
+    const canViewOrder =
+      user.role === "admin" ||
+      order.collector.id.toString() === user._id.toString() ||
+      order.participants.some(
+        (participant) => participant.id.toString() === user._id.toString(),
+      );
+
+    if (!canViewOrder) {
+      const res = {
+        success: false,
+        message: "غير مصرح لك بعرض تفاصيل هذا الأوردر",
+      };
+      clientSocket.emit("socketError", res);
+      if (typeof cb === "function") cb(res);
+      return;
+    }
+
     // Join room so socket receives live updates for this order
     await clientSocket.join(order._id.toString());
 

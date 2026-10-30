@@ -31,13 +31,7 @@ export default async function updateOrderStatus(io, socket, data, callback) {
       return;
     }
 
-    const validStatuses = [
-      "open",
-      "closed",
-      "submitted",
-      "completed",
-      "cancelled",
-    ];
+    const validStatuses = ["open", "closed", "completed", "cancelled"];
     if (!validStatuses.includes(status)) {
       const res = {
         success: false,
@@ -61,7 +55,7 @@ export default async function updateOrderStatus(io, socket, data, callback) {
 
     // Only collector of this order or admin can update the order status
     const isCollector =
-      order.collector.user.toString() === user._id.toString();
+      order.collector.id.toString() === user._id.toString();
     const isAdmin = user.role === "admin";
 
     if (!isCollector && !isAdmin) {

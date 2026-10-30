@@ -20,8 +20,8 @@ export default async function getMyOrders(io, socket, data, callback) {
 
     const orders = await Orders.find({
       $or: [
-        { "participants.user": user._id },
-        { "collector.user": user._id },
+        { "participants.id": user._id },
+        { "collector.id": user._id },
       ],
     }).sort({ createdAt: -1 });
 
