@@ -8,6 +8,10 @@ const OrdersSchema = new Schema(
         required: true,
         trim: true,
       },
+      key: {
+        type: String,
+        trim: true,
+      },
       address: {
         type: String,
         trim: true,
