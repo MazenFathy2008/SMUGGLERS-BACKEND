@@ -54,7 +54,7 @@ export default async function updateOrder(io, socket, data, callback) {
     }
 
     const participant = order.participants.find(
-      (p) => p.user.toString() === user._id.toString()
+      (p) => p.id.toString() === user._id.toString()
     );
 
     if (!participant) {
