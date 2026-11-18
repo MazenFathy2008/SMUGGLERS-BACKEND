@@ -17,7 +17,7 @@ const cookieOptions = {
 /// SING UP///
 const signUp = async (req, res, next) => {
   try {
-    const { data } = req.body || {};
+    const data  = req.body || {};
     if (
       !data ||
       typeof data.name !== "string" ||
@@ -68,7 +68,7 @@ const signUp = async (req, res, next) => {
 /// SIGN IN ///
 const signIn = async (req, res, next) => {
   try {
-    const { data } = req.body || {};
+    const  data  = req.body || {};
     const { email, password } = data || {};
     if (typeof email !== "string" || typeof password !== "string") {
       return res.status(400).json({
@@ -105,8 +105,7 @@ const signIn = async (req, res, next) => {
       },
     );
     res.cookie("token", token, cookieOptions);
-    console.log("Cookie options:", cookieOptions);
-    console.log("Set-Cookie header:", res.getHeader("Set-Cookie"));
+
     res.status(200).json({
       success: true,
       user: {
@@ -143,8 +142,6 @@ const signOut = async (req, res, next) => {
 /// authMe ///
 const authMe = async (req, res, next) => {
   try {
-    console.log("Cookies:", req.cookies);
-    console.log("Token:", req.cookies?.token ? "FOUND" : "NOT FOUND");
 
     const token = req.cookies?.token;
 
@@ -171,7 +168,6 @@ const authMe = async (req, res, next) => {
       user,
     });
   } catch (error) {
-    console.log("Auth error:", error.message);
     next(error);
   }
 };

@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema(
       maxlength: 128,
     },
     roomNumber: {
-      type: Number,
+      type: String,
       required: true,
     },
     role: {

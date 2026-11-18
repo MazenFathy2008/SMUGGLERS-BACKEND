@@ -38,10 +38,6 @@ async function insertOrder() {
 
       status: "open",
     });
-
-    console.log("Order inserted successfully!");
-    console.log("Order ID:", order._id);
-    console.log(JSON.stringify(order, null, 2));
   } catch (error) {
     console.error("Failed to insert order:", error.message);
     process.exitCode = 1;

@@ -81,6 +81,6 @@ export const setUpsocket = (server) => {
     socket.on("leaveOrder", async (data, callback) => {
       await leaveOrder(io, socket, data, callback);
     });
-    return io;
   });
+  return io;
 };

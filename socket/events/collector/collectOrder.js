@@ -1,4 +1,5 @@
 import Orders from "../../../model/orders.model.js";
+import { io } from "../../../server.js";
 export default async function collectOrder(socket, data) {
   try {
     const user = socket.data.user;
@@ -22,7 +23,7 @@ export default async function collectOrder(socket, data) {
       socket.emit("roomCreated", {
         data: order,
       });
-      socket.to("lobby").emit("newActiveOrder", order);
+      io.to("lobby").emit("newActiveOrder", order);
     } catch {
       socket.emit("socketError", {
         message: "Missing data or wrong format please check your data",
