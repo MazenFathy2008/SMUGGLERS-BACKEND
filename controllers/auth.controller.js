@@ -3,15 +3,14 @@ import Users from "../model/users.model.js";
 import jwt from "jsonwebtoken";
 import { createHash, randomBytes } from "node:crypto";
 import { JWT_EXPIRES_IN, JWT_SECRET, NODE_ENV } from "../config/env.js";
-import {
-  sendPasswordResetEmail,
-} from "../utils/email.js";
+import { sendPasswordResetEmail } from "../utils/email.js";
 
 const isProduction = NODE_ENV === "production";
 const cookieOptions = {
   httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? "none" : "lax",
+  secure: false,
+  sameSite: "lax",
+  path: "/",
   maxAge: 15 * 24 * 60 * 60 * 1000,
 };
 
@@ -106,6 +105,8 @@ const signIn = async (req, res, next) => {
       },
     );
     res.cookie("token", token, cookieOptions);
+    console.log("Cookie options:", cookieOptions);
+    console.log("Set-Cookie header:", res.getHeader("Set-Cookie"));
     res.status(200).json({
       success: true,
       user: {
@@ -126,6 +127,7 @@ const signOut = async (req, res, next) => {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
+      path: "/",
     });
 
     return res.status(200).json({
@@ -141,27 +143,35 @@ const signOut = async (req, res, next) => {
 /// authMe ///
 const authMe = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    console.log("Cookies:", req.cookies);
+    console.log("Token:", req.cookies?.token ? "FOUND" : "NOT FOUND");
+
+    const token = req.cookies?.token;
+
     if (!token) {
       return res.status(401).json({
         success: false,
-        error: "UNAUTHORIZED",
+        error: "TOKEN_NOT_FOUND",
       });
     }
+
     const decoded = jwt.verify(token, JWT_SECRET);
+
     const user = await Users.findById(decoded.id).select("-password");
+
     if (!user) {
       return res.status(404).json({
         success: false,
         error: "DATA_NOT_FOUND",
       });
     }
+
     return res.status(200).json({
       success: true,
       user,
     });
   } catch (error) {
-    console.log(error)
+    console.log("Auth error:", error.message);
     next(error);
   }
 };
@@ -250,11 +260,4 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-export {
-  signUp,
-  signIn,
-  signOut,
-  authMe,
-  requestPasswordReset,
-  resetPassword,
-};
+export { signUp, signIn, signOut, authMe, requestPasswordReset, resetPassword };
